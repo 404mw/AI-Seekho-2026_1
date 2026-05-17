@@ -1,0 +1,33 @@
+# virtual environment
+venv
+.venv
+Envs
+
+# database
+*.db
+*.sqlite
+
+# python cache
+__pycache__/
+*.pyc
+
+# editor settings
+.vscode/
+.idea/
+
+# logs
+*.log
+
+# secrets / .env files
+.env
+.env.*
+!backend/.env.example
+
+# local development
+.DS_Store
+
+# Antigravity skills
+.agent/skills
+
+# Temporary files
+temp/
