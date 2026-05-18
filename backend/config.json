@@ -1,0 +1,10 @@
+{
+  "scoring_weights": {
+    "distance": 0.40,
+    "rating": 0.35,
+    "price": 0.25
+  },
+  "agent_timeout_seconds": 30,
+  "maps_fallback_to_haversine": true,
+  "max_provider_candidates": 10
+}
