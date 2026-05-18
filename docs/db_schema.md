@@ -14,10 +14,12 @@ This document outlines the database schema for the application, designed to supp
 
 #### `User` (`models/user.py`)
 Represents the end-user initiating service requests.
-- `id` (UUID v4, Primary Key)
+
+> **Auth Note:** Authentication is handled entirely by **Supabase Auth**. The `id` field is the Supabase `auth.users.id` UUID — it is used directly as the Primary Key. No password is stored in this table.
+
+- `id` (UUID v4, Primary Key) — **mirrors Supabase `auth.users.id`**
 - `full_name` (String)
 - `email` (String, Unique)
-- `hashed_password` (String, Optional)
 - `phone_number` (String)
 - `address_line1` (String)
 - `city` (String)
@@ -31,11 +33,13 @@ Represents the end-user initiating service requests.
 
 #### `Provider` (`models/provider.py`)
 Represents the service providers (individuals or businesses).
-- `id` (UUID v4, Primary Key)
+
+> **Auth Note:** Authentication is handled entirely by **Supabase Auth**. The `id` field is the Supabase `auth.users.id` UUID — used directly as the Primary Key. No password is stored in this table. A single Supabase account can hold both a `User` and a `Provider` identity.
+
+- `id` (UUID v4, Primary Key) — **mirrors Supabase `auth.users.id`**
 - `business_name` (String)
 - `contact_person` (String)
 - `email` (String, Unique)
-- `hashed_password` (String, Optional)
 - `phone_number` (String)
 - `address_line1` (String)
 - `city` (String)

@@ -5,8 +5,9 @@ Based on the strict rules established in `rules.md`, this architecture is design
 ## Finalized Technology Stack
 - **Language/Framework:** Python + FastAPI
 - **Package Manager:** `uv`
-- **Database:** PostgreSQL for production, local SQLite for development.
+- **Database:** PostgreSQL for both production and local development.
 - **ORM:** SQLModel
+- **Authentication:** **Supabase Auth** — The client authenticates directly with Supabase and receives a signed JWT. The backend verifies this JWT via a shared `verify_supabase_token()` dependency. No custom auth routes exist in this backend. The Supabase `auth.users.id` UUID is used as the Primary Key in both the `User` and `Provider` tables.
 - **Configuration:** `.json`
 
 ## Proposed Directory Structure (`backend/`)
@@ -23,10 +24,14 @@ backend/
 │   ├── config.py         # Logic to load and validate config.json and .env safely
 │   │
 │   ├── api/              # API Layer (Routes only, no business logic)
-│   │   ├── dependencies.py # Shared dependencies (e.g., auth, db sessions)
+│   │   ├── dependencies.py # Shared dependencies (verify_supabase_token, db session)
 │   │   └── routes/       # One file per resource
-│   │       ├── requests.py # e.g., POST /requests (triggers agent flow)
-│   │       └── providers.py# e.g., GET /providers
+│   │       ├── users.py    # /users/me — user profile management
+│   │       ├── providers.py# /providers — profile, offerings, schedule, time-off
+│   │       ├── requests.py # /requests — async agent pipeline trigger & polling
+│   │       ├── bookings.py # /bookings — booking management (user & provider views)
+│   │       ├── reviews.py  # /bookings/{id}/review, /providers/{id}/reviews
+│   │       └── catalog.py  # /catalog/categories — read-only service catalog
 │   │
 │   ├── agents/           # Antigravity Agent Logic (One file per agent workflow)
 │   │   ├── base.py       # Base agent class/utilities
@@ -39,9 +44,17 @@ backend/
 │   │   ├── maps.py       # Location/Maps integration
 │   │   └── matching.py   # Fallback matching algorithms
 │   │
-│   ├── models/           # Database Models (SQLModel)
+│   ├── models/           # Database Models (SQLModel — one file per entity)
 │   │   ├── user.py
-│   │   └── service.py
+│   │   ├── provider.py
+│   │   ├── service_category.py
+│   │   ├── provider_offering.py
+│   │   ├── provider_schedule.py
+│   │   ├── provider_time_off.py
+│   │   ├── service_request.py
+│   │   ├── agent_trace.py
+│   │   ├── booking.py
+│   │   └── review.py
 │   │
 │   └── schemas/          # Data Validation Schemas (Pydantic/SQLModel)
 │       ├── request.py
