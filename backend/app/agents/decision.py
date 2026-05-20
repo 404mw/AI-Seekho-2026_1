@@ -9,6 +9,7 @@ from sqlmodel import Session
 
 from app.agents.base import BaseAgentRunner, _update_stage, record_trace
 from app.agents.discovery import ProviderList
+from app.config import settings
 from app.models.service_request import ServiceRequest
 
 
@@ -78,7 +79,7 @@ class DecisionAgent(BaseAgentRunner):
                 for sc in scored_candidates
             ])
             gemini_response = self.client.models.generate_content(
-                model="gemini-2.0-flash",
+                model=settings.gemini_model,
                 contents=(
                     f"Explain in 1-2 sentences why '{winner.business_name}' (score {winner_score}) "
                     f"was selected over these alternatives: {candidates_json}. "

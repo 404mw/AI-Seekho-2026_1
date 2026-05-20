@@ -4,6 +4,7 @@ import time
 from typing import Optional
 
 from pydantic import BaseModel
+from sqlalchemy import or_
 from sqlmodel import Session, select
 
 from app.agents.base import BaseAgentRunner, _update_stage, record_trace
@@ -90,16 +91,23 @@ class DiscoveryAgent(BaseAgentRunner):
         from app.config import runtime_config  # noqa: PLC0415
         max_candidates = runtime_config.get("max_provider_candidates", 10)
 
+        svc = intent.service_type
         stmt = (
             select(Provider, ProviderOffering, ServiceCategory)
             .join(ProviderOffering, Provider.id == ProviderOffering.provider_id)
             .join(ServiceCategory, ProviderOffering.category_id == ServiceCategory.id)
             .where(Provider.is_active == True)  # noqa: E712
-            .where(ServiceCategory.name == intent.service_type)
+            .where(
+                or_(
+                    ServiceCategory.name == svc,
+                    ServiceCategory.name.ilike(f"%{svc}%"),
+                    ServiceCategory.name.ilike(f"%{svc.split()[0]}%"),
+                )
+            )
             .limit(max_candidates)
         )
         rows = session.exec(stmt).all()
-        reasoning_parts.append(f"{len(rows)} providers found in DB for '{intent.service_type}'")
+        reasoning_parts.append(f"{len(rows)} providers found in DB for '{svc}'")
 
         self._geo_map: dict[str, str] = {}
         result = []

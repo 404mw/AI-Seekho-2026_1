@@ -21,7 +21,7 @@ __pycache__/
 # secrets / .env files
 .env
 .env.*
-!backend/.env.example
+!.env.example
 
 # local development
 .DS_Store

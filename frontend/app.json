@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Seekho",
-    "slug": "seekho",
-    "scheme": "seekho",
+    "name": "Khidmat AI",
+    "slug": "khidmat-ai",
+    "scheme": "khidmatai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,11 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "bundleIdentifier": "com.seekho.app",
+      "bundleIdentifier": "com.khidmatai.app",
       "supportsTablet": false
     },
     "android": {
-      "package": "com.seekho.app",
+      "package": "com.khidmatai.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

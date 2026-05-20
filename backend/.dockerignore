@@ -1,0 +1,29 @@
+# Exclude Git files
+.git
+.gitignore
+
+# Exclude local environments and dependencies
+.venv
+node_modules
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude secrets and config templates
+.env
+.env.local
+.env.example
+.env.*
+
+# Exclude test files and caches
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Exclude build files
+Dockerfile
+.dockerignore
+build/
+dist/

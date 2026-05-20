@@ -23,7 +23,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Seekho' }} />
+      <Stack.Screen options={{ title: 'Khidmat AI' }} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={{ flex: 1, backgroundColor: colors.background }}

@@ -1,20 +1,13 @@
 from __future__ import annotations
 
 import uuid
-from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
 
 
-@pytest.fixture(autouse=True)
-def mock_token(mock_jwt_payload):
-    with patch("app.api.dependencies.verify_supabase_token", return_value=mock_jwt_payload):
-        yield
-
-
-def test_sync_provider_creates_record(client: TestClient, mock_jwt_payload):
-    resp = client.post(
+def test_sync_provider_creates_record(authed_client: TestClient):
+    resp = authed_client.post(
         "/api/v1/providers/me/sync",
         json={"business_name": "Test Biz", "contact_person": "Test Person"},
         headers={"Authorization": "Bearer t"},
@@ -38,13 +31,13 @@ def test_create_offering_requires_auth(client: TestClient):
     assert resp.status_code in (401, 403)
 
 
-def test_upsert_schedule(client: TestClient, mock_jwt_payload):
-    client.post(
+def test_upsert_schedule(authed_client: TestClient):
+    authed_client.post(
         "/api/v1/providers/me/sync",
         json={"business_name": "Sched Test"},
         headers={"Authorization": "Bearer t"},
     )
-    resp = client.put(
+    resp = authed_client.put(
         "/api/v1/providers/me/schedule",
         json={"schedule": [{"day_of_week": 0, "start_time": "09:00", "end_time": "17:00", "is_active": True}]},
         headers={"Authorization": "Bearer t"},

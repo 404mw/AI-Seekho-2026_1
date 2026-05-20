@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 from app.api.dependencies import get_db_session, verify_supabase_token
 from app.models.agent_trace import AgentTrace
 from app.models.service_request import ServiceRequest
+from app.models.user import User
 from app.schemas.request import ServiceRequestCreate
 from app.schemas.response import APIResponse
 
@@ -30,6 +31,13 @@ def create_request(
     current_user: CurrentUser,
 ) -> APIResponse:
     user_id = uuid.UUID(current_user["sub"])
+    if not session.get(User, user_id):
+        session.add(User(
+            id=user_id,
+            email=current_user.get("email", ""),
+            full_name=current_user.get("user_metadata", {}).get("full_name", "") or current_user.get("email", ""),
+        ))
+        session.flush()
     service_request = ServiceRequest(
         user_id=user_id,
         raw_natural_language_prompt=body.prompt,

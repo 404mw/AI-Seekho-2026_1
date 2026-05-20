@@ -18,7 +18,7 @@ const ROLES: { value: Role; label: string; description: string }[] = [
 
 export default function SignUp() {
   const insets = useSafeAreaInsets();
-  const { setMode, setHasProviderProfile } = React.use(ModeContext)!;
+  const { setMode, setCanBeProvider, setPendingProviderOnboarding } = React.use(ModeContext)!;
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -40,14 +40,24 @@ export default function SignUp() {
     setIsLoading(true);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name },
+          emailRedirectTo: 'khidmatai://auth/callback',
+        },
+      });
       if (signUpError) throw signUpError;
 
+      const isProvider = role === 'provider' || role === 'both';
+
       if (!data.session) {
-        // Email confirmation is required — session is not active yet.
-        // Persist the chosen mode so AuthGate routes correctly after sign-in.
-        setMode(role === 'provider' ? 'provider' : 'customer');
-        if (role === 'provider' || role === 'both') setHasProviderProfile(true);
+        // Email confirmation required — no session yet, so no backend syncs.
+        // pendingProviderOnboarding survives to SecureStore so the wizard launches after sign-in.
+        setCanBeProvider(isProvider);
+        if (isProvider) setPendingProviderOnboarding(true);
+        setMode('customer');
         setVerificationSent(true);
         return;
       }
@@ -58,15 +68,13 @@ export default function SignUp() {
       };
       const body = JSON.stringify({ full_name: name });
 
-      if (role === 'customer' || role === 'both') {
-        await fetch(`${API_BASE_URL}/users/me/sync`, { method: 'POST', headers, body });
-      }
-      if (role === 'provider' || role === 'both') {
-        await fetch(`${API_BASE_URL}/providers/me/sync`, { method: 'POST', headers, body });
-        setHasProviderProfile(true);
-      }
+      // Sync user record; provider profile is created during the onboarding wizard
+      await fetch(`${API_BASE_URL}/users/me/sync`, { method: 'POST', headers, body });
 
-      setMode(role === 'provider' ? 'provider' : 'customer');
+      setCanBeProvider(isProvider);
+      if (isProvider) setPendingProviderOnboarding(true);
+      // Always land in customer mode — AuthGate will push to the wizard if pendingProviderOnboarding
+      setMode('customer');
       // Root AuthGate handles redirect after mode + session are set
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';

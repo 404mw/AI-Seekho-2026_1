@@ -53,7 +53,7 @@ export default function SignIn() {
       >
         {/* App name */}
         <View style={{ alignItems: 'center', marginBottom: spacing['4xl'] }}>
-          <Text style={{ ...typography.largeTitle, color: colors.label }}>Summon</Text>
+          <Text style={{ ...typography.largeTitle, color: colors.label }}>Khidmat AI</Text>
           <Text style={{ ...typography.body, color: colors.labelSecondary, marginTop: spacing.xs }}>
             Book trusted local services
           </Text>

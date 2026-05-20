@@ -8,7 +8,11 @@ from google.genai import types as genai_types
 from pydantic import BaseModel
 from sqlmodel import Session
 
+from sqlmodel import select
+
 from app.agents.base import BaseAgentRunner, _update_stage, record_trace
+from app.config import settings
+from app.models.service_category import ServiceCategory
 from app.models.service_request import ServiceRequest
 
 
@@ -43,16 +47,22 @@ class IntentAgent(BaseAgentRunner):
         _update_stage(session, service_request, "intent")
 
         try:
+            categories = session.exec(select(ServiceCategory)).all()
+            category_names = [c.name for c in categories]
+            category_list = ", ".join(category_names) if category_names else "General Services"
+
             system_prompt = (
                 "You are an AI assistant that extracts structured information from service requests. "
                 "The user may write in English, Urdu, or Roman Urdu. "
-                "Extract: service_type (in English), location_text, requested_time_text, "
+                f"Available service categories (you MUST pick the closest one): {category_list}. "
+                "Extract: service_type (MUST be one of the available categories above, pick the closest match), "
+                "location_text, requested_time_text, "
                 "resolved_datetime_utc (ISO-8601, infer date relative to today), "
                 "language_detected, and confidence (0.0–1.0)."
             )
 
             response = self.client.models.generate_content(
-                model="gemini-2.0-flash",
+                model=settings.gemini_model,
                 contents=f"Extract intent from: {input_data.prompt}",
                 config=genai_types.GenerateContentConfig(
                     system_instruction=system_prompt,

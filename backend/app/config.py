@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_jwt_secret: str
     gemini_api_key: str
+    gemini_model: str = "gemini-2.5-pro"
     google_maps_api_key: str
 
 

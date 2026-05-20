@@ -1,16 +1,15 @@
 import React from 'react';
-import { ScrollView, View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
-import { Stack } from 'expo-router';
+import { ScrollView, View, Text, Pressable, Alert } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { AuthContext } from '@/context/auth-context';
 import { ModeContext } from '@/context/mode-context';
-import { api } from '@/lib/api';
 import { colors } from '@/constants/colors';
 import { spacing, typography, radius } from '@/constants/tokens';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { user, signOut } = React.use(AuthContext)!;
-  const { setMode, hasProviderProfile, setHasProviderProfile } = React.use(ModeContext)!;
-  const [isSyncing, setIsSyncing] = React.useState(false);
+  const { setMode, hasProviderProfile } = React.use(ModeContext)!;
 
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ??
@@ -18,19 +17,6 @@ export default function ProfileScreen() {
     'User';
 
   const avatarLetter = displayName[0]?.toUpperCase() ?? 'U';
-
-  const handleBecomeProvider = async () => {
-    setIsSyncing(true);
-    try {
-      await api.post('/providers/me/sync');
-      setHasProviderProfile(true);
-      setMode('provider');
-    } catch (e) {
-      Alert.alert('Error', e instanceof Error ? e.message : 'Failed to create provider profile');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -71,7 +57,7 @@ export default function ProfileScreen() {
 
         <View style={{ height: 1, backgroundColor: colors.separator }} />
 
-        {/* Provider mode actions */}
+        {/* Provider mode section */}
         <View style={{ gap: spacing.md }}>
           {hasProviderProfile ? (
             <Pressable
@@ -91,23 +77,18 @@ export default function ProfileScreen() {
             </Pressable>
           ) : (
             <Pressable
-              onPress={handleBecomeProvider}
-              disabled={isSyncing}
+              onPress={() => router.push('/(customer)/(profile)/become-provider')}
               style={({ pressed }) => ({
                 backgroundColor: colors.backgroundSecondary,
                 borderRadius: radius.md,
                 borderCurve: 'continuous',
                 padding: spacing.lg,
                 alignItems: 'center',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                gap: spacing.sm,
-                opacity: pressed || isSyncing ? 0.7 : 1,
+                opacity: pressed ? 0.7 : 1,
               })}
             >
-              {isSyncing && <ActivityIndicator size="small" color={colors.accent} />}
               <Text style={{ ...typography.headline, color: colors.accent }}>
-                {isSyncing ? 'Setting up...' : 'Become a Provider'}
+                Offer Services on Khidmat AI
               </Text>
             </Pressable>
           )}
